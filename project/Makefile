@@ -6,7 +6,7 @@ INCDIR = ./
 
 INCLUDES = -I $(INCDIR)
 
-TARGET = hello_world hello_world_at_most_once
+TARGET = client_server client_server_at_most_once
 
 .PHONY: all clean
 
@@ -16,8 +16,8 @@ all: $(TARGET)
 clean:
 	rm -f $(TARGET)
 
-hello_world: hello_world.cpp kcl.hpp
+client_server: client_server.cpp kcl.hpp
 	$(CC) $< -o $@ $(INCLUDES) -lrdkafka $(CFLAGS) $(OPTFLAGS)
 
-hello_world_at_most_once: hello_world.cpp kcl.hpp
+client_server_at_most_once: client_server.cpp kcl.hpp
 	$(CC) $< -o $@ $(INCLUDES) -lrdkafka $(CFLAGS) $(OPTFLAGS) -DAT_MOST_ONCE
