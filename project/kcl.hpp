@@ -449,23 +449,23 @@ namespace KCL {
 	};
 
 	// Static member initialization
-	bool KCL::Comm::stopThreads = false;
-	std::string KCL::Comm::group_id;
-	std::string KCL::Comm::processName;
-	std::string KCL::Comm::myTopic;
-	std::thread KCL::Comm::indexThread;
-	std::thread KCL::Comm::messagesThread;
-	std::unordered_map<std::string, std::string> KCL::Comm::processTopicMap;
-	std::mutex KCL::Comm::processTopicMapMutex;
-	std::queue<KCL::Message> KCL::Comm::messageQueue;
-	std::mutex KCL::Comm::messageQueueMutex;
-	std::condition_variable KCL::Comm::messageQueueCondVar;
+	bool Comm::stopThreads = false;
+	std::string Comm::group_id;
+	std::string Comm::processName;
+	std::string Comm::myTopic;
+	std::thread Comm::indexThread;
+	std::thread Comm::messagesThread;
+	std::unordered_map<std::string, std::string> Comm::processTopicMap;
+	std::mutex Comm::processTopicMapMutex;
+	std::queue<Message> Comm::messageQueue;
+	std::mutex Comm::messageQueueMutex;
+	std::condition_variable Comm::messageQueueCondVar;
 
 	// ---- CONFIGURATION SETTINGS ----
-	std::string KCL::Comm::brokers = "localhost:9092";
-	std::string KCL::Comm::indexTopic = "index";
-	int KCL::Comm::consumer_poll_timeout_ms = 500;
-	int KCL::Comm::flush_timeout_ms = 5000;
+	std::string Comm::brokers = "localhost:9092";
+	std::string Comm::indexTopic = "index";
+	int Comm::consumer_poll_timeout_ms = 500;
+	int Comm::flush_timeout_ms = 5000;
 };
 
 #endif // KCL_HPP
