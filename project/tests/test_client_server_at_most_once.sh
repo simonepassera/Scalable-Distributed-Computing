@@ -44,6 +44,7 @@ echo "[TEST]: Starting second client and sending messages..."
 } | $EXECUTABLE 1 $CLIENT_SECOND_NAME $SERVER_NAME > client-2_at_most_once_output.txt 2>&1
 
 # Wait for the server to close
+echo "[TEST]: Waiting for the server to close..."
 wait $SERVER_PID
 
 # Check the output
@@ -72,6 +73,7 @@ echo "[TEST]: Starting first client and sending messages..."
 } | $EXECUTABLE 1 $CLIENT_FIRST_NAME $SERVER_NAME > client-1_at_most_once_output.txt 2>&1
 
 # Wait for the server to close
+echo "[TEST]: Waiting for the server to close..."
 wait $SERVER_PID
 
 # Check the output

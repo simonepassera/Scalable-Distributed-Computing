@@ -30,6 +30,7 @@ echo "[TEST]: Starting client and sending messages..."
 } | $EXECUTABLE 1 $CLIENT_NAME $SERVER_NAME > client_output.txt 2>&1
 
 # Wait for the server to close
+echo "[TEST]: Waiting for the server to close..."
 wait $SERVER_PID
 
 # Check the output
