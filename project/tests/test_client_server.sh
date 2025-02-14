@@ -15,11 +15,8 @@ fi
 
 # Start the server in the background
 echo "[TEST]: Starting server..."
-$EXECUTABLE 0 "$SERVER_NAME" "$CLIENT_NAME" > server_output.txt 2>&1 &
+$EXECUTABLE 0 $SERVER_NAME $CLIENT_NAME > server_output.txt 2>&1 &
 SERVER_PID=$!
-
-# Wait for the server to initialize
-sleep 2
 
 # Start the client and send messages
 echo "[TEST]: Starting client and sending messages..."
@@ -30,7 +27,7 @@ echo "[TEST]: Starting client and sending messages..."
     sleep 1
     echo "bye"
     sleep 1
-} | $EXECUTABLE 1 "$CLIENT_NAME" "$SERVER_NAME" > client_output.txt 2>&1
+} | $EXECUTABLE 1 $CLIENT_NAME $SERVER_NAME > client_output.txt 2>&1
 
 # Wait for the server to close
 wait $SERVER_PID
@@ -42,4 +39,5 @@ if grep -q "The client sent the bye message!" server_output.txt && grep -q "Clos
     rm -f server_output.txt client_output.txt
 else
     echo -e "[TEST]: \033[31mTest failed. Check server_output.txt and client_output.txt\033[0m"
+    exit 1
 fi

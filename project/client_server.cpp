@@ -18,7 +18,7 @@ void signal_handler(int) {
 void Server(std::string source) {
 	if (KCL::Comm::Listen() != 0) {
 		std::cerr << "[\033[31mSERVER\033[0m]: \033[31mERROR Listen()\033[0m\n";
-		return;
+		exit(1);
 	} else {
 		std::cout << "[\033[34mSERVER\033[0m]: \033[34mListening...\033[0m\n";	
 	}
@@ -81,7 +81,7 @@ void Client(std::string dest) {
 int main(int argc, char** argv) {
     if(argc < 4) {
 		std::cerr << "Usage: " << argv[0] << " <0|1> <processName> <processSource|processDest>\n";
-        return -1;
+        return 1;
     }
     
 	std::signal(SIGHUP, signal_handler);	
