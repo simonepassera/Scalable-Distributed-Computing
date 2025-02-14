@@ -257,7 +257,7 @@ namespace KCL {
 		
 		public:
 			// Initializes the communication module
-			static void Init(std::string processName) {
+			static void Init(const std::string& processName) {
 				Comm::processName = processName;
 				myTopic = processName + "_topic";
 				group_id = processName;
