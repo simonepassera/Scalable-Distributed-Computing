@@ -15,14 +15,6 @@ void signal_handler(int) {
 	stop = 1;
 }
 
-void clearScreen() {
-	std::cout << "\033[2J\033[H";
-}
-
-void moveCursor(int x, int y) {
-	std::cout << "\033[" << y << ";" << x << "H";
-}
-
 void Server(std::string source) {
 	if (KCL::Comm::Listen() != 0) {
 		std::cerr << "[\033[31mSERVER\033[0m]: \033[31mERROR Listen()\033[0m\n";
@@ -51,31 +43,27 @@ void Client(std::string dest) {
 
 	const char spinner[] = "|/-\\";
 	int i = 0;
+
+	std::cout << "[\033[34mCLIENT\033[0m]: \033[34mEnter a message for server (" << dest << ")\n";
+	std::cout << "\033[33mType 'bye' to exit." << std::flush;
 	
 	while (!stop) {
-		clearScreen();
-		moveCursor(1, 1);
-		std::cout << "[\033[34mCLIENT\033[0m]: \033[34mEnter a message for server (" << dest << ")\n";
-		std::cout << "\033[33mType 'bye' to exit.\n\033[33m> " << std::flush;
-		
+		std::cout << "\n\033[33m> " << std::flush;
 		std::getline(std::cin, msg);
+		std::cout << "\033[0m\n";
 		
 		while (!stop) {
-			 moveCursor(1, 3);
-		     std::cout << "[\033[32mCLIENT\033[0m]: \033[32mSending... " << spinner[i % 4] << "\033[0m" << std::flush;
+		     std::cout << "\033[1A[\033[32mCLIENT\033[0m]: \033[32mSending... " << spinner[i % 4] << "\033[0m\n";
 		
 		     err = KCL::Comm::Send(dest, msg);
 
 		     if (err == 1) {
-		     	std::cerr << "[\033[31mCLIENT\033[0m]: \033[31mERROR Send()\033[0m" << std::flush;
-		     	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		     	std::cerr << "\033[1A[\033[31mCLIENT\033[0m]: \033[31mMessage sending failed!\033[0m" << std::flush;
 		        break;
 		     }
 		
 		     if (err == 0) {
-		     	moveCursor(1, 3);
-		     	std::cout << "[\033[32mCLIENT\033[0m]: \033[32mMessage sent successfully!\033[0m" << std::flush;
-		     	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		     	std::cout << "\033[1A[\033[32mCLIENT\033[0m]: \033[32mMessage sent successfully!\033[0m" << std::flush;
 		        break;
 		     }
 		
@@ -87,8 +75,7 @@ void Client(std::string dest) {
 			stop = 1;
 	}
 	
-	moveCursor(1, 3);
-	std::cout << "\033[2K[\033[32mCLIENT\033[0m]: \033[32mClosed!\033[0m\n";	
+	std::cout << "\n[\033[34mCLIENT\033[0m]: \033[34mClosed!\033[0m\n";	
 }
 
 int main(int argc, char** argv) {
