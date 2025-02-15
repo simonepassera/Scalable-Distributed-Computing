@@ -24,15 +24,19 @@ void Server(std::string source) {
 	}
 
     std::string msg;
+    std::string process;
     
 	while(!stop) {
-		KCL::Comm::Receive(source, msg, nullptr);
+		if (source == "ANY_SOURCE")
+			KCL::Comm::Receive(KCL::KCL_ANY_SOURCE, msg, &process);
+		else
+			KCL::Comm::Receive(source, msg, &process);
 
 		if (msg == "bye") {
 			std::cout << "[\033[32mSERVER\033[0m]: \033[32mThe client sent the bye message!\033[0m\n";
 			stop = 1;
 		} else {
-			std::cout << "[\033[33m" << source << "\033[0m]: \033[33m" << msg << "\033[0m\n";
+			std::cout << "[\033[33m" << process << "\033[0m]: \033[33m" << msg << "\033[0m\n";
 		}
 	}
 }
@@ -80,7 +84,7 @@ void Client(std::string dest) {
 
 int main(int argc, char** argv) {
     if(argc < 4) {
-		std::cerr << "Usage: " << argv[0] << " <0|1> <processName> <processSource|processDest>\n";
+		std::cerr << "Usage: " << argv[0] << " <0|1> <processName> <processSource|processDest|ANY_SOURCE>\n";
         return 1;
     }
     
