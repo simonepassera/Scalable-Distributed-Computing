@@ -10,7 +10,7 @@ EXECUTABLE="./client_server"
 echo "[TEST]: Compiling with Make..."
 make $EXECUTABLE
 if [ $? -ne 0 ]; then
-    echo "[TEST]: \033[31mCompilation failed!\033[0m"
+    echo -e "[TEST]: \033[31mCompilation failed!\033[0m"
     exit 1
 fi
 

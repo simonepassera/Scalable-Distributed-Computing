@@ -26,7 +26,7 @@ void Server(std::string source) {
     std::string msg;
     
 	while(!stop) {
-		KCL::Comm::Receive(source, msg);
+		KCL::Comm::Receive(source, msg, nullptr);
 
 		if (msg == "bye") {
 			std::cout << "[\033[32mSERVER\033[0m]: \033[32mThe client sent the bye message!\033[0m\n";

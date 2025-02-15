@@ -20,7 +20,7 @@ client_server: client_server.cpp kcl.hpp
 	$(CC) $< -o $@ $(INCLUDES) -lrdkafka $(CFLAGS) $(OPTFLAGS)
 
 client_server_at_most_once: client_server.cpp kcl.hpp
-	$(CC) $< -o $@ $(INCLUDES) -lrdkafka $(CFLAGS) $(OPTFLAGS) -DAT_MOST_ONCE
+	$(CC) $< -o $@ $(INCLUDES) -lrdkafka $(CFLAGS) $(OPTFLAGS) -DKCL_AT_MOST_ONCE
 
 test:
 	+$(TESTDIR)/test_client_server.sh

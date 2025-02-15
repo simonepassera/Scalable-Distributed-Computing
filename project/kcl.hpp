@@ -12,6 +12,10 @@
 #include <librdkafka/rdkafka.h>
 
 namespace KCL {
+	// This constant is used exclusively by Receive functions to act as a wildcard sender,
+	// indicating that messages from any sender are acceptable
+	constexpr const char* KCL_ANY_SOURCE = "";
+		
 	// Structure representing a Kafka message
 	struct Message {
 	    std::string sender;
@@ -183,13 +187,13 @@ namespace KCL {
 						} else {
 							std::lock_guard<std::mutex> lock(messageQueueMutex);
 
-							#ifdef AT_MOST_ONCE
+							#ifdef KCL_AT_MOST_ONCE
 								Message msg{std::string((char*)message->key, message->key_len),
 											std::string((char*)message->payload, message->len)};
 
 								rd_kafka_commit_message(consumer_from_messages, message, 0);
 								rd_kafka_message_destroy(message);
-							#else // AT_LEAST_ONCE
+							#else // KCL_AT_LEAST_ONCE
 								Message msg{std::string((char*)message->key, message->key_len),
 											std::string((char*)message->payload, message->len),
 											message,
@@ -213,11 +217,11 @@ namespace KCL {
 				std::queue<Message> tempQueue = messageQueue;
 				
         		while (!tempQueue.empty()) {
-        			#ifdef AT_MOST_ONCE
-        				if (tempQueue.front().sender == sender)
+        			#ifdef KCL_AT_MOST_ONCE
+        				if (sender == KCL_ANY_SOURCE || tempQueue.front().sender == sender)
         					return true;
-					#else // AT_LEAST_ONCE
-            			if (tempQueue.front().sender == sender && !tempQueue.front().consumed)
+					#else // KCL_AT_LEAST_ONCE
+            			if ((sender == KCL_ANY_SOURCE || tempQueue.front().sender == sender) && !tempQueue.front().consumed)
                 			return true;
             		#endif
             		
@@ -268,7 +272,7 @@ namespace KCL {
 			static void Finalize() {
 				stopThreads = true;
 
-				#ifndef AT_MOST_ONCE
+				#ifndef KCL_AT_MOST_ONCE
 					discardAndCommitAllMessages();
 				#endif
 				
@@ -401,32 +405,32 @@ namespace KCL {
 				return 0;	
 			} 
 
-			// Receives a message from a specific process
-			static void Receive(const std::string& targetProcess, std::string& buff) {
+			// Receives a message from a specific process or any with 'KCL_ANY_SOURCE'
+			static void Receive(const std::string& targetProcess, std::string& messageContent, std::string* source) {
         		std::unique_lock<std::mutex> lock(messageQueueMutex);
         		messageQueueCondVar.wait(lock, [&]() { return hasMessageFrom(targetProcess); });
         		        		
         		Message first_message;
         		std::queue<Message> tempQueue;
 
-        		#ifdef AT_MOST_ONCE
+        		#ifdef KCL_AT_MOST_ONCE
         			while (!messageQueue.empty()) {
         				Message msg = std::move(messageQueue.front());
         			    messageQueue.pop();
         			        		        			
-        			    if (first_message.sender.empty() && msg.sender == targetProcess)
+        			    if (first_message.sender.empty() && (targetProcess == KCL_ANY_SOURCE || msg.sender == targetProcess))
         			    	first_message = msg;
         			    else
         			        tempQueue.push(std::move(msg));
         			}
-        		#else // AT_LEAST_ONCE
+        		#else // KCL_AT_LEAST_ONCE
         			bool commit = true;
         		        		        		
         		    while (!messageQueue.empty()) {
         		    	Message msg = std::move(messageQueue.front());
         		        messageQueue.pop();
         		        		        			
-        		        if (first_message.sender.empty() && msg.sender == targetProcess && !msg.consumed) {
+        		        if (first_message.sender.empty() && (targetProcess == KCL_ANY_SOURCE || msg.sender == targetProcess) && !msg.consumed) {
         		          	first_message = msg;
         		           	first_message.consumed = true;
         		
@@ -444,7 +448,10 @@ namespace KCL {
         		#endif
         		
         		messageQueue = std::move(tempQueue);
-        		buff = first_message.content;
+        		messageContent = first_message.content;
+
+        		if (source)
+        			*source = first_message.sender;
 			}
 	};
 
