@@ -4,9 +4,10 @@ OPTFLAGS = -O3
 
 INCDIR = ./
 INCLUDES = -I $(INCDIR)
+LIBS = -lrdkafka
 TESTDIR = ./tests
 
-TARGET = client_server client_server_at_most_once
+TARGET = client_server client_server_at_most_once scalability
 
 .PHONY: all clean test
 
@@ -16,11 +17,11 @@ all: $(TARGET)
 clean:
 	rm -f $(TARGET)
 
-client_server: client_server.cpp kcl.hpp
-	$(CC) $< -o $@ $(INCLUDES) -lrdkafka $(CFLAGS) $(OPTFLAGS)
+client_server scalability: %: %.cpp kcl.hpp
+	$(CC) $< -o $@ $(INCLUDES) $(LIBS) $(CFLAGS) $(OPTFLAGS)
 
 client_server_at_most_once: client_server.cpp kcl.hpp
-	$(CC) $< -o $@ $(INCLUDES) -lrdkafka $(CFLAGS) $(OPTFLAGS) -DKCL_AT_MOST_ONCE
+	$(CC) $< -o $@ $(INCLUDES) $(LIBS) $(CFLAGS) $(OPTFLAGS) -DKCL_AT_MOST_ONCE
 
 test:
 	+$(TESTDIR)/test_client_server.sh
