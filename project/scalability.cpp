@@ -8,18 +8,21 @@
 
 const int WAIT_FOR_START_SECONDS = 5;
 
-int main(int argc, char** argv) {
+int main(int argc, char* argv[]) {
     int numProcesses = 2;
-    int numMessages  = 10;
+    int M = 1000;
 
     if (argc >= 3) {
         numProcesses = std::stoi(argv[1]);
-        numMessages  = std::stoi(argv[2]);
+        M = std::stoi(argv[2]);
     } else {
-        std::cout << "Usage: " << argv[0] << " <numProcesses> <numMessagesPerLink>\n";
+        std::cout << "Usage: " << argv[0] << " <numProcesses> <totalMessages>\n";
         std::cout << "Using default values: numProcesses = " << numProcesses 
-                  << ", numMessagesPerLink = " << numMessages << "\n";
+                  << ", totalMessages = " << M << "\n";
     }
+
+    int numMessages = (numProcesses > 1) ? M / (numProcesses * (numProcesses - 1)) : M;
+    if (numMessages < 1) numMessages = 1;
 
     std::vector<pid_t> children;
 
