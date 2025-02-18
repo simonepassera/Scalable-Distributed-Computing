@@ -70,9 +70,9 @@ int main(int argc, char* argv[]) {
 
             auto end = std::chrono::steady_clock::now();
             std::chrono::duration<double> elapsed = end - start;
-
-            std::cout << "[" << processName << "]: Total time: " 
-                      << elapsed.count() << " seconds.\n";
+std::cout << elapsed.count() << std::endl;
+            //std::cout << "[" << processName << "]: Total time: " 
+            //          << elapsed.count() << " seconds.\n";
 
             KCL::Comm::Finalize();
             exit(0);

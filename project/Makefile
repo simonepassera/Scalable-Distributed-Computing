@@ -7,7 +7,7 @@ INCLUDES = -I $(INCDIR)
 LIBS = -lrdkafka
 TESTDIR = ./tests
 
-TARGET = client_server client_server_at_most_once scalability
+TARGET = client_server client_server_at_most_once strong weak
 
 .PHONY: all clean test
 
@@ -17,7 +17,7 @@ all: $(TARGET)
 clean:
 	rm -f $(TARGET)
 
-client_server scalability: %: %.cpp kcl.hpp
+client_server strong weak: %: %.cpp kcl.hpp
 	$(CC) $< -o $@ $(INCLUDES) $(LIBS) $(CFLAGS) $(OPTFLAGS)
 
 client_server_at_most_once: client_server.cpp kcl.hpp
