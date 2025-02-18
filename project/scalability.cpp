@@ -31,13 +31,13 @@ int main(int argc, char** argv) {
 
             KCL::Comm::Init(processName);
 
-            std::cout << "[" << processName << "]: Waiting " 
-                      << WAIT_FOR_START_SECONDS << " seconds...\n";
-
             if (KCL::Comm::Listen() != 0) {
             		std::cerr << "[\033[31m" << processName << "\033[0m]: \033[31mERROR Listen()\033[0m\n";
             		exit(1);
             }
+
+            std::cout << "[" << processName << "]: Waiting " 
+                      << WAIT_FOR_START_SECONDS << " seconds...\n";
             
             sleep(WAIT_FOR_START_SECONDS);
 
