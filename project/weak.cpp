@@ -16,9 +16,9 @@ int main(int argc, char* argv[]) {
         numProcesses = std::stoi(argv[1]);
         numMessages = std::stoi(argv[2]);
     } else {
-        std::cout << "Usage: " << argv[0] << " <numProcesses> <numMessages>\n";
+        std::cout << "Usage: " << argv[0] << " <numProcesses> <messagesPerProcess>\n";
         std::cout << "Using default values: numProcesses = " << numProcesses 
-                  << ", numMessages = " << numMessages << "\n";
+                  << ", messagesPerProcess = " << numMessages << "\n";
     }
 
     std::vector<pid_t> children;
@@ -43,24 +43,28 @@ int main(int argc, char* argv[]) {
 
             auto start = std::chrono::steady_clock::now();
 
-            for (int j = 0; j < numProcesses; j++) {
-                if (j == i) continue;
-                
-                std::string targetName = "process_" + std::to_string(j);
+            int numTargets = numProcesses - 1;
+            int base = (numTargets > 0) ? (numMessages / numTargets) : numMessages;
+            int r = (numTargets > 0) ? (numMessages % numTargets) : 0;
 
-                for (int m = 0; m < numMessages; m++) {
-                    std::string msgContent = "Hello from " + processName + " to " + targetName + ", msg " + std::to_string(m);
+            for (int j = 0; j < numTargets; j++) {
+                int target = (i + 1 + j) % numProcesses;
+                int messagesToSend = (j < r) ? (base + 1) : base;
+                
+                for (int m = 0; m < messagesToSend; m++) {
+                    std::string msgContent = "Hello from " + processName +
+                                             " to process_" + std::to_string(target) +
+                                             ", msg " + std::to_string(m);
                     
-                    while (KCL::Comm::Send(targetName, msgContent) != 0)
+                    while (KCL::Comm::Send("process_" + std::to_string(target), msgContent) != 0)
                         usleep(100000); // 100 ms
                 }
             }
 
-            int expectedMessages = (numProcesses - 1) * numMessages;
             int received = 0;
             std::string msg;
 
-            while (received < expectedMessages) {
+            while (received < numMessages) {
                 KCL::Comm::Receive(KCL::KCL_ANY_SOURCE, msg, nullptr);
                 received++;
             }
