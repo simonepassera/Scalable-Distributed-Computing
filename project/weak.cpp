@@ -15,6 +15,11 @@ int main(int argc, char* argv[]) {
     if (argc >= 3) {
         numProcesses = std::stoi(argv[1]);
         numMessages = std::stoi(argv[2]);
+
+        if (numProcesses <= 1 || numMessages <= 0) {
+            std::cerr << "Usage: " << argv[0] << " <numProcesses> <messagesPerProcess>\n";
+            exit(1);
+        }
     } else {
         std::cout << "Usage: " << argv[0] << " <numProcesses> <messagesPerProcess>\n";
         std::cout << "Using default values: numProcesses = " << numProcesses 
@@ -44,8 +49,8 @@ int main(int argc, char* argv[]) {
             auto start = std::chrono::steady_clock::now();
 
             int numTargets = numProcesses - 1;
-            int base = (numTargets > 0) ? (numMessages / numTargets) : numMessages;
-            int r = (numTargets > 0) ? (numMessages % numTargets) : 0;
+            int base = numMessages / numTargets;
+            int r = numMessages % numTargets;
 
             for (int j = 0; j < numTargets; j++) {
                 int target = (i + 1 + j) % numProcesses;
@@ -57,7 +62,7 @@ int main(int argc, char* argv[]) {
                                              ", msg " + std::to_string(m);
                     
                     while (KCL::Comm::Send("process_" + std::to_string(target), msgContent) != 0)
-                        usleep(100000); // 100 ms
+                        usleep(1000); // 1 ms
                 }
             }
 
@@ -76,12 +81,12 @@ int main(int argc, char* argv[]) {
                       << elapsed.count() << " seconds.\n";
 
             KCL::Comm::Finalize();
-            exit(0);
+            return 0;
         } else if (pid > 0) {
             children.push_back(pid);
         } else {
             std::cerr << "\033[31mERROR fork()\033[0m\n";
-            return 1;
+            exit(1);
         }
     }
 
@@ -91,5 +96,5 @@ int main(int argc, char* argv[]) {
     }
     
     std::cout << "Test finished!\n";
-    return 0;
+    exit(0);
 }
