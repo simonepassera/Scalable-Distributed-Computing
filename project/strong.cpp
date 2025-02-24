@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
 
             auto start = std::chrono::steady_clock::now();
 
-            int numMessages = M / (numProcesses * (numProcesses - 1));
+            int numMessages = M / numProcesses;
             int numTargets = numProcesses - 1;
             int base = numMessages / numTargets;
             int r = numMessages % numTargets;
