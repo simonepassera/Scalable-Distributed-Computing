@@ -206,6 +206,36 @@ namespace KCL {
 					}
 				}
 
+				// Discards and commits all stored messages (KCL_AT_LEAST_ONCE)
+				#ifndef KCL_AT_MOST_ONCE
+					{
+						std::lock_guard<std::mutex> lock(messageQueueMutex);
+						
+						std::vector<Message> messages;
+
+						while (!messageQueue.empty()) {
+							messages.push_back(std::move(messageQueue.front()));
+							messageQueue.pop();
+						}
+
+						Message* commitCandidate = nullptr;
+
+						for (auto &msg : messages) {
+							if (msg.consumed)
+								commitCandidate = &msg;
+							else
+								break; 
+						}
+						
+						if (commitCandidate && !commitCandidate->committed)
+							rd_kafka_commit_message(commitCandidate->rk, commitCandidate->rkmessage, 0);
+						
+						
+						for (auto &msg : messages)
+							rd_kafka_message_destroy(msg.rkmessage);
+					}
+				#endif
+
 				// Cleanup	        
 				rd_kafka_consumer_close(consumer_from_messages);
 				rd_kafka_destroy(consumer_from_messages);		        
@@ -231,34 +261,6 @@ namespace KCL {
         		return false;
     		}
 
-			// Discards and commits all stored messages (AT_LEAST_ONCE)
-    		static void discardAndCommitAllMessages() {
-    			std::lock_guard<std::mutex> lock(messageQueueMutex);
-    			
-    			std::vector<Message> messages;
-
-    			while (!messageQueue.empty()) {
-    				messages.push_back(std::move(messageQueue.front()));
-    			    messageQueue.pop();
-    			}
-
-    			Message* commitCandidate = nullptr;
-
-    			for (auto &msg : messages) {
-    				if (msg.consumed)
-    			    	commitCandidate = &msg;
-    			    else
-    			    	break; 
-    			}
-    			
-    			if (commitCandidate && !commitCandidate->committed)
-    				rd_kafka_commit_message(commitCandidate->rk, commitCandidate->rkmessage, 0);
-    			
-    			
-    			for (auto &msg : messages)
-    				rd_kafka_message_destroy(msg.rkmessage);
-    		}
-		
 		public:
 			// Initializes the communication module
 			static void Init(const std::string& processName) {
@@ -271,10 +273,6 @@ namespace KCL {
 			// Cleans up and stops the module
 			static void Finalize() {
 				stopThreads = true;
-
-				#ifndef KCL_AT_MOST_ONCE
-					discardAndCommitAllMessages();
-				#endif
 				
 				if (indexThread.joinable())
 					indexThread.join();
