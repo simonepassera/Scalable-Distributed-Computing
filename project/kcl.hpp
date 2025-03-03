@@ -284,7 +284,7 @@ namespace KCL {
 			}
 
 			// Starts listening for messages
-			static int Listen() {
+			static size_t Listen() {
 				char errstr[512];
 
 				// Create Kafka producer configuration
@@ -345,7 +345,7 @@ namespace KCL {
 			}
 
 			// Sends a message to a specific process
-			static int Send(const std::string& targetProcess, const std::string& messageContent) {
+			static size_t Send(const std::string& targetProcess, const std::string& messageContent) {
 				std::string targetTopic;
 
 				// Find the target topic
