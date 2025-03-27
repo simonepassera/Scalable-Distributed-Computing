@@ -32,6 +32,7 @@ namespace KCL {
 			static std::string brokers;
 			static std::string indexTopic;
 			static std::string processName;
+			static std::string topicName;
 			static std::string myTopic;
 			static std::string group_id;
 
@@ -265,7 +266,7 @@ namespace KCL {
 			// Initializes the communication module
 			static void Init(const std::string& processName) {
 				Comm::processName = processName;
-				myTopic = processName + "_topic";
+				myTopic = processName + topicName;
 				group_id = processName;
 				indexThread = std::thread(consumerIndex);
 			}
@@ -469,6 +470,7 @@ namespace KCL {
 	// ---- CONFIGURATION SETTINGS ----
 	std::string Comm::brokers = "localhost:9092";
 	std::string Comm::indexTopic = "index";
+	std::string Comm::topicName = "_topic";
 	int Comm::consumer_poll_timeout_ms = 500;
 	int Comm::flush_timeout_ms = 5000;
 };
